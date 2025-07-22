@@ -1,5 +1,5 @@
 # README.md
-# 🍩 Ephemeral Donut Shop Database
+# 🍩  Donut Shop Database
 
 A complete PostgreSQL database system for a donut shop. Perfect for development, testing, and demonstrations.
 
@@ -109,4 +109,4 @@ docker exec donut_shop_db bash /scripts/health-check.sh
 ```
 ## 🏷️ Tags
 
-`postgresql` `docker` `database` `ephemeral` `sgbd` `stored-procedures` `triggers` `brazilian` `donut-shop` `development` `testing`
+`postgresql` `docker` `database`  `sgbd` `stored-procedures` `triggers` `brazilian` `donut-shop` `development` `testing`
