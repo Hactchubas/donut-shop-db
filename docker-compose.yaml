@@ -1,0 +1,60 @@
+
+
+services:
+  postgres:
+    image: postgres:17.5
+    container_name: donut_shop_db
+    environment:
+      POSTGRES_DB: donut_shop
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: donut_admin_2025
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    ports:
+      - "5433:5432"
+    volumes:
+      # Mount init scripts for database setup (read-only)
+      - ./init-scripts:/docker-entrypoint-initdb.d:ro
+      # Mount management scripts inside container
+      - ./container-scripts:/scripts:ro
+    # NO PERSISTENT DATA VOLUMES - All database data is ephemeral
+    tmpfs:
+      - /var/lib/postgresql/data:rw,noexec,nosuid,size=1g
+    networks:
+      - donut_network
+    restart: "no"  # Don't restart - ephemeral containers
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d donut_shop"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+    # Make scripts executable after container starts
+    command: >
+      bash -c "
+      chmod +x /scripts/*.sh 2>/dev/null || true &&
+      docker-entrypoint.sh postgres
+      "
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: donut_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@donutshop.com
+      PGADMIN_DEFAULT_PASSWORD: pgadmin_donut_2025
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "8080:80"
+    # NO PERSISTENT VOLUMES - All pgAdmin config is ephemeral
+    tmpfs:
+      - /var/lib/pgadmin:rw,noexec,nosuid,size=256m
+    networks:
+      - donut_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"  # Don't restart - ephemeral containers
+
+networks:
+  donut_network:
+    driver: bridge
