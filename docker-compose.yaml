@@ -1,5 +1,3 @@
-
-
 services:
   postgres:
     image: postgres:17.5
@@ -43,6 +41,8 @@ services:
       PGADMIN_DEFAULT_EMAIL: admin@donutshop.com
       PGADMIN_DEFAULT_PASSWORD: pgadmin_donut_2025
       PGADMIN_CONFIG_SERVER_MODE: 'False'
+    volumes:
+      - ./pgadmin/servers.json:/pgadmin4/servers.json
     ports:
       - "8080:80"
     # NO PERSISTENT VOLUMES - All pgAdmin config is ephemeral

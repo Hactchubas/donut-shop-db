@@ -1,4 +1,3 @@
-# README.md
 # 🍩  Donut Shop Database
 
 A complete PostgreSQL database system for a donut shop. Perfect for development, testing, and demonstrations.
