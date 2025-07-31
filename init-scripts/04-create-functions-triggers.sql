@@ -165,7 +165,69 @@ BEGIN
 END;
 $$;
 
+-- Check stock before adding order
+CREATE OR REPLACE FUNCTION verificar_estoque_ingredientes()
+RETURNS TRIGGER AS $$
+DECLARE
+    ingredientes_faltando TEXT := '';
+BEGIN
+    -- Verificar massa
+    IF EXISTS (
+        SELECT 1
+        FROM donut d
+        JOIN estoque_ingredientes e ON e.tipo_ingrediente = 'massa' AND e.id_ingrediente = d.id_massa
+        WHERE d.id_donut = NEW.id_donut AND e.quantidade_disponivel <= 0
+    ) THEN
+        ingredientes_faltando := ingredientes_faltando || 'massa ';
+    END IF;
+
+    -- Verificar coberturas
+    IF EXISTS (
+        SELECT 1
+        FROM donut_cobertura dc
+        JOIN estoque_ingredientes e ON e.tipo_ingrediente = 'cobertura' AND e.id_ingrediente = dc.id_cobertura
+        WHERE dc.id_donut = NEW.id_donut AND e.quantidade_disponivel <= 0
+    ) THEN
+        ingredientes_faltando := ingredientes_faltando || 'cobertura ';
+    END IF;
+
+    -- Verificar recheios
+    IF EXISTS (
+        SELECT 1
+        FROM donut_recheio dr
+        JOIN estoque_ingredientes e ON e.tipo_ingrediente = 'recheio' AND e.id_ingrediente = dr.id_recheio
+        WHERE dr.id_donut = NEW.id_donut AND e.quantidade_disponivel <= 0
+    ) THEN
+        ingredientes_faltando := ingredientes_faltando || 'recheio ';
+    END IF;
+
+    -- Verificar toppings
+    IF EXISTS (
+        SELECT 1
+        FROM donut_topping dt
+        JOIN estoque_ingredientes e ON e.tipo_ingrediente = 'topping' AND e.id_ingrediente = dt.id_topping
+        WHERE dt.id_donut = NEW.id_donut AND e.quantidade_disponivel <= 0
+    ) THEN
+        ingredientes_faltando := ingredientes_faltando || 'topping ';
+    END IF;
+
+    IF ingredientes_faltando <> '' THEN
+        RAISE EXCEPTION 'Não há ingredientes suficientes no estoque: %', ingredientes_faltando;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
 -- Create triggers
+CREATE TRIGGER trigger_verificar_estoque
+    BEFORE INSERT ON pedido_donut
+    FOR EACH ROW
+    EXECUTE FUNCTION verificar_estoque_ingredientes();
+
+
 CREATE TRIGGER trigger_auditoria_status_pedido 
     AFTER UPDATE ON pedido 
     FOR EACH ROW 

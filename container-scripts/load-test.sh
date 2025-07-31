@@ -11,18 +11,22 @@ for i in $(seq 1 50); do
     customer_cpf=$(echo "11111111111 22222222222 33333333333 44444444444 55555555555" | cut -d' ' -f$((($i % 5) + 1)))
     
     # Random donut ID (1-10)
-    donut_id=$(($i % 10 + 1))
+    donut_id=$(($i % 5 + 1))
     
     # Random value
     value=$(echo "scale=2; 10 + ($i % 20)" | bc 2>/dev/null || echo "15.50")
     
     psql -U postgres -d donut_shop -c "
     INSERT INTO pedido (data_h, valor, status, cpf_cliente) 
-    VALUES (NOW(), $value, 'Pendente', '$customer_cpf');
+    SELECT NOW(), dd.preco_total, 'Pendente', '$customer_cpf'
+      FROM vw_donut_detalhado dd
+      WHERE dd.id_donut = $donut_id
+      ORDER BY dd.id_donut
+    LIMIT 1;
     
     INSERT INTO pedido_donut (id_pedido, id_donut) 
     VALUES (currval('pedido_pedido_num_seq'), $donut_id);
-    " > /dev/null 2>&1
+    "
     
     if [ $((i % 10)) -eq 0 ]; then
         echo "Created $i orders..."

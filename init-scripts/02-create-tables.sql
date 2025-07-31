@@ -100,7 +100,7 @@ CREATE TABLE IF NOT EXISTS estoque_ingredientes (
     id_estoque SERIAL PRIMARY KEY,
     tipo_ingrediente VARCHAR(20) NOT NULL,
     id_ingrediente INTEGER NOT NULL,
-    quantidade_disponivel INTEGER NOT NULL DEFAULT 100,
+    quantidade_disponivel INTEGER NOT NULL DEFAULT 100 CHECK (quantidade_disponivel >= 0),
     quantidade_minima INTEGER NOT NULL DEFAULT 10,
     data_ultima_atualizacao TIMESTAMP DEFAULT NOW(),
     UNIQUE(tipo_ingrediente, id_ingrediente)

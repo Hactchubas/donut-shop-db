@@ -11,6 +11,8 @@ A complete PostgreSQL database system for a donut shop. Perfect for development,
 - **🐳 Docker-Based**: Runs entirely in containers, no local PostgreSQL needed
 - **🌍 Cross-Platform**: Works on Windows, Mac, and Linux
 - **⚡ In-Memory Storage**: Database runs in tmpfs for maximum performance
+- **📊 Admin Dashboard**: Vue.js-based web interface for managing the donut shop
+- **🔧 Real-time Analytics**: Live dashboard with sales metrics and inventory tracking
 
 ## 🚀 Quick Start
 
@@ -24,21 +26,27 @@ A complete PostgreSQL database system for a donut shop. Perfect for development,
 git clone https://github.com/Hactchubas/donut-shop-db.git
 cd donut-shop-db
 
-# Start the containers
-docker-compose up -d
+# Option 1: Start with local admin interface (recommended)
+bash start-local-admin.sh
 
-# Wait for initialization
-# Test everything
-docker exec donut_shop_db bash /scripts/test.sh
+# Option 2: Start all services in Docker (experimental)
+bash container-scripts/start-admin.sh
+
+# Option 3: Start only database and PgAdmin
+docker-compose up postgres pgadmin -d
 ```
 
 ### Access Points
+- **Admin Dashboard**: http://localhost:5173 (local) or http://localhost:3000 (Docker)
 - **Database**: `localhost:5433`
 - **PgAdmin**: http://localhost:8080
 
 ## 🛠️ Available Commands
 
 ```bash
+# Start all services (including admin dashboard)
+bash container-scripts/start-admin.sh
+
 # Test all functionality
 docker exec donut_shop_db bash /scripts/test.sh
 
@@ -50,6 +58,12 @@ docker exec -it donut_shop_db psql -U admin_donut_db -d donut_shop
 
 # Connect as readonly
 docker exec -it donut_shop_db psql -U readonly_donut_db -d donut_shop
+
+# View admin application logs
+docker-compose logs donut-admin
+
+# Stop all services
+docker-compose down
 ```
 
 ## 📊 Sample Data
@@ -74,10 +88,16 @@ donut-shop-database/
 │   ├── 05-create-views.sql
 │   └── 06-create-users.sql
 ├── container-scripts/          # Management tools
+│   ├── start-admin.sh          # Start all services with admin
 │   ├── test.sh
-│   ├── demo.sh
 │   ├── status.sh
 │   └── ...
+├── donut-admin-vue/           # Vue.js Admin Dashboard
+│   ├── Dockerfile
+│   ├── src/
+│   ├── server.js              # API server
+│   └── ...
+├── pgadmin/                   # PgAdmin configuration
 └── docs/                      # Documentation
     ├── CONNECTIONS.md
     ├── SCHEMA.md

@@ -5,6 +5,7 @@
 CREATE OR REPLACE VIEW vw_donut_detalhado AS
 SELECT 
     d.id_donut,
+    d.preco,
     string_agg(DISTINCT t.tipo, ', ') AS toppings,
     string_agg(DISTINCT c.tipo, ', ') AS cobertura,
     string_agg(DISTINCT r.tipo, ', ') AS recheio,
@@ -12,7 +13,7 @@ SELECT
     (COALESCE(SUM(DISTINCT t.preco), 0) + 
      COALESCE(SUM(DISTINCT c.preco), 0) + 
      COALESCE(SUM(DISTINCT r.preco), 0) + 
-     m.preco) AS preco_total
+     m.preco + d.preco) AS preco_total
 FROM donut d
 JOIN massa m ON d.id_massa = m.id_massa
 LEFT JOIN donut_topping dt ON d.id_donut = dt.id_donut
@@ -21,7 +22,7 @@ LEFT JOIN donut_cobertura dc ON d.id_donut = dc.id_donut
 LEFT JOIN cobertura c ON dc.id_cobertura = c.id_cobertura
 LEFT JOIN donut_recheio dr ON d.id_donut = dr.id_donut
 LEFT JOIN recheio r ON dr.id_recheio = r.id_recheio
-GROUP BY d.id_donut, m.tipo, m.preco;
+GROUP BY d.id_donut, d.preco, m.tipo, m.preco;
 
 -- Pending orders time view
 CREATE OR REPLACE VIEW vw_pedidos_tempo AS

@@ -31,6 +31,7 @@ services:
     command: >
       bash -c "
       chmod +x /scripts/*.sh 2>/dev/null || true &&
+      bash /scripts/init-aliases.sh &&
       docker-entrypoint.sh postgres
       "
 
@@ -54,6 +55,31 @@ services:
       postgres:
         condition: service_healthy
     restart: "no"  # Don't restart - ephemeral containers
+
+  donut-api:
+    build:
+      context: ./donut-api
+    container_name: donut_api
+    ports:
+      - "3001:3001"
+    networks:
+      - donut_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  donut-admin:
+    build:
+      context: ./donut-admin-vue
+    container_name: donut_admin_frontend
+    ports:
+      - "3000:80"
+    networks:
+      - donut_network
+    depends_on:
+      - donut-api
+    restart: "no"
 
 networks:
   donut_network:
