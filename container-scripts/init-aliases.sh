@@ -31,7 +31,7 @@ alias donut-add-order='bash /scripts/add-order.sh'
 # Quick queries
 alias donut-customers='psql -U postgres -d donut_shop -c "SELECT COUNT(*) as total_customers FROM cliente;"'
 alias donut-orders='psql -U postgres -d donut_shop -c "SELECT COUNT(*) as total_orders FROM pedido;"'
-alias donut-sales='psql -U postgres -d donut_shop -c "SELECT * FROM sp_relatorio_vendas(CURRENT_DATE - INTERVAL '\''30 days'\'', CURRENT_DATE);"'
+alias donut-sales='psql -U postgres -d donut_shop -c "SELECT * FROM sp_relatorio_vendas((CURRENT_DATE - INTERVAL '\''30 days'\'')::DATE, CURRENT_DATE);"'
 alias donut-stock='psql -U postgres -d donut_shop -c "SELECT * FROM vw_estoque_baixo;"'
 
 # Help
